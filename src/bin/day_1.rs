@@ -1,13 +1,11 @@
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, Lines};
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::process::exit;
 
 fn main() {
-    let mut elves: Vec<Elf>;
-    if let Ok(lines) = read_lines("./data/day_1") {
-        elves = parse(lines);
-    } else {
+    let mut elves: Vec<Elf> = parse("./data/day_1");
+    if elves.len() == 0 {
         println!("Error reading file");
         exit(1);
     }
@@ -26,8 +24,22 @@ fn top_n_calories(elves: &mut Vec<Elf>, n: usize) -> i32 {
     return elves.iter().take(n).map(|a: &Elf| a.calories).sum();
 }
 
-fn parse(lines: Lines<BufReader<File>>) -> Vec<Elf> {
+struct Elf {
+    //id: i32,
+    calories: i32,
+    //items: Vec<i32>,
+}
+
+fn parse<P>(filename: P) -> Vec<Elf>
+where
+    P: AsRef<Path>,
+{
     let mut elves: Vec<Elf> = Vec::new();
+    let file = File::open(filename);
+    if file.is_err() {
+        return elves;
+    }
+    let lines = BufReader::new(file.unwrap()).lines();
 
     // Consumes the iterator, returns an (Optional) String
     let mut items = Vec::new();
@@ -49,18 +61,4 @@ fn parse(lines: Lines<BufReader<File>>) -> Vec<Elf> {
     }
 
     return elves;
-}
-
-struct Elf {
-    //id: i32,
-    calories: i32,
-    //items: Vec<i32>,
-}
-
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
 }
