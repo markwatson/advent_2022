@@ -24,12 +24,14 @@ fn top_n_calories(elves: &mut Vec<Elf>, n: usize) -> i32 {
     return elves.iter().take(n).map(|a: &Elf| a.calories).sum();
 }
 
+#[allow(dead_code)]
 struct Elf {
-    //id: i32,
+    id: i32,
     calories: i32,
-    //items: Vec<i32>,
+    items: Vec<i32>,
 }
 
+#[allow(dead_code)]
 fn parse<P>(filename: P) -> Vec<Elf>
 where
     P: AsRef<Path>,
@@ -41,19 +43,19 @@ where
 
         // Consumes the iterator, returns an (Optional) String
         let mut items = Vec::new();
-        //let mut counter: i32 = 1;
+        let mut counter: i32 = 1;
         for line in lines {
             if let Ok(item) = line {
                 if item.len() > 0 {
                     items.push(item.parse::<i32>().unwrap());
                 } else {
                     elves.push(Elf {
-                        //id: counter,
+                        id: counter,
                         calories: items.iter().sum(),
-                        //items: items.clone(),
+                        items: items.clone(),
                     });
                     items = Vec::new();
-                    //counter += 1;
+                    counter += 1;
                 }
             }
         }
