@@ -36,29 +36,27 @@ where
 {
     let mut elves: Vec<Elf> = Vec::new();
     let file = File::open(filename);
-    if file.is_err() {
-        return elves;
-    }
-    let lines = BufReader::new(file.unwrap()).lines();
+    if file.is_ok() {
+        let lines = BufReader::new(file.unwrap()).lines();
 
-    // Consumes the iterator, returns an (Optional) String
-    let mut items = Vec::new();
-    //let mut counter: i32 = 1;
-    for line in lines {
-        if let Ok(item) = line {
-            if item.len() > 0 {
-                items.push(item.parse::<i32>().unwrap());
-            } else {
-                elves.push(Elf {
-                    //id: counter,
-                    calories: items.iter().sum(),
-                    //items: items.clone(),
-                });
-                items = Vec::new();
-                //counter += 1;
+        // Consumes the iterator, returns an (Optional) String
+        let mut items = Vec::new();
+        //let mut counter: i32 = 1;
+        for line in lines {
+            if let Ok(item) = line {
+                if item.len() > 0 {
+                    items.push(item.parse::<i32>().unwrap());
+                } else {
+                    elves.push(Elf {
+                        //id: counter,
+                        calories: items.iter().sum(),
+                        //items: items.clone(),
+                    });
+                    items = Vec::new();
+                    //counter += 1;
+                }
             }
         }
     }
-
     return elves;
 }
