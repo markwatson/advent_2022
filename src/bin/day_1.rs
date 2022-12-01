@@ -22,12 +22,8 @@ fn main() {
 }
 
 fn top_n_calories(elves: &mut Vec<Elf>, n: usize) -> i32 {
-    let mut top_n_calories: i32 = 0;
     elves.sort_by(|a, b| b.calories.cmp(&a.calories));
-    for elf in elves.iter().take(n) {
-        top_n_calories += elf.calories;
-    }
-    return top_n_calories;
+    return elves.iter().take(n).map(|a: &Elf| a.calories).sum();
 }
 
 fn parse(lines: Lines<BufReader<File>>) -> Vec<Elf> {
