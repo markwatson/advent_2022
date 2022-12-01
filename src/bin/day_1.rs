@@ -1,5 +1,4 @@
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::fs::read_to_string;
 use std::path::Path;
 use std::process::exit;
 
@@ -37,28 +36,24 @@ where
     P: AsRef<Path>,
 {
     let mut elves: Vec<Elf> = Vec::new();
-    let file = File::open(filename);
-    if file.is_ok() {
-        let lines = BufReader::new(file.unwrap()).lines();
+    let contents = read_to_string(filename).expect("Error reading file");
 
-        // Consumes the iterator, returns an (Optional) String
-        let mut items = Vec::new();
-        let mut counter: i32 = 1;
-        for line in lines {
-            if let Ok(item) = line {
-                if item.len() > 0 {
-                    items.push(item.parse::<i32>().unwrap());
-                } else {
-                    elves.push(Elf {
-                        id: counter,
-                        calories: items.iter().sum(),
-                        items: items.clone(),
-                    });
-                    items = Vec::new();
-                    counter += 1;
-                }
-            }
+    // Consumes the iterator, returns an (Optional) String
+    let mut items = Vec::new();
+    let mut counter: i32 = 1;
+    for line in contents.split("\n") {
+        if line.len() > 0 {
+            items.push(line.parse::<i32>().unwrap());
+        } else {
+            elves.push(Elf {
+                id: counter,
+                calories: items.iter().sum(),
+                items: items.clone(),
+            });
+            items = Vec::new();
+            counter += 1;
         }
     }
+
     return elves;
 }
