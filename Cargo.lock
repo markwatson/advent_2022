@@ -76,6 +76,7 @@ dependencies = [
  "bit-vec",
  "env_logger",
  "log",
+ "regex",
 ]
 
 [[package]]
