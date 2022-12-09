@@ -1,23 +1,24 @@
-// use regex::Regex;
-// use std::{borrow::Borrow, cell::RefCell, fmt, fs::read_to_string, rc::Rc};
+use regex::Regex;
+use std::{borrow::Borrow, cell::RefCell, fmt, fs::read_to_string, rc::Rc};
 
-// #[derive(Debug, Clone)]
-// struct Item {
-//     path: String,
-//     is_file: bool,
-//     size: i32,
-// }
+#[derive(Debug, Clone)]
+struct Item {
+    path: String,
+    is_file: bool,
+    size: i32,
+}
 
-// impl fmt::Display for Item {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         write!(
-//             f,
-//             "Item(path: {}, is_file: {}, size: {})",
-//             self.path, self.is_file, self.size
-//         )
-//     }
-// }
+impl fmt::Display for Item {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Item(path: {}, is_file: {}, size: {})",
+            self.path, self.is_file, self.size
+        )
+    }
+}
 
+// Tree
 // #[derive(Debug)]
 // struct TreeNode {
 //     value: Option<Item>,
@@ -110,10 +111,10 @@
 // }
 
 fn main() {
-    // let input = read_to_string("./data/day_7_test").expect("Error reading file");
+    let input = read_to_string("./data/day_7_test").expect("Error reading file");
 
     // let dirs = parse_dirs(&input);
     // println!("{:?}", dirs);
 
-    //println!("{}", input);
+    println!("{}", input);
 }
