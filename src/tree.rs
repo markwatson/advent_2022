@@ -1,5 +1,8 @@
 use std::{cell::RefCell, fmt::Display, rc::Rc};
 
+// Note: I started writing this, but then found the slab_tree crate. That
+// one seems a bit easier to use. 🤷
+
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct TreeNode<T> {
