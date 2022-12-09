@@ -1,4 +1,3 @@
-
 use std::{collections::HashSet, fs::read_to_string};
 
 // RUST_LOG=debug cargo run --bin day_3
