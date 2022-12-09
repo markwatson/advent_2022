@@ -1,7 +1,6 @@
 use std::{collections::HashMap, fs::read_to_string};
 
-#[allow(dead_code)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 struct Instruction {
     direction: (i32, i32),
     distance: i32,
@@ -17,7 +16,7 @@ impl Instruction {
                 'R' => (1, 0),
                 _ => panic!("Invalid direction"),
             },
-            distance: distance,
+            distance,
         }
     }
 
@@ -26,7 +25,7 @@ impl Instruction {
 
         let mut output = vec![];
         for line in input.lines() {
-            let parts: Vec<&str> = line.trim().split(" ").collect();
+            let parts: Vec<&str> = line.trim().split(' ').collect();
             if parts.len() != 2 {
                 panic!("Invalid input");
             }
@@ -34,50 +33,50 @@ impl Instruction {
             let distance = parts[1].parse::<i32>().unwrap();
             output.push(Instruction::new(direction, distance));
         }
-        return output;
+        output
     }
 }
 
 fn add(a: (i32, i32), b: (i32, i32)) -> (i32, i32) {
-    return (a.0 + b.0, a.1 + b.1);
+    (a.0 + b.0, a.1 + b.1)
 }
 
 fn abs_sub(a: (i32, i32), b: (i32, i32)) -> (i32, i32) {
-    return ((a.0 - b.0).abs(), (a.1 - b.1).abs());
+    ((a.0 - b.0).abs(), (a.1 - b.1).abs())
 }
 fn next_to(h: (i32, i32), t: (i32, i32)) -> bool {
     let diff = abs_sub(h, t);
-    return h == t || (diff.0 <= 1 && diff.1 <= 1);
+    h == t || (diff.0 <= 1 && diff.1 <= 1)
 }
 
 fn direction_to_move(h: (i32, i32), t: (i32, i32)) -> (i32, i32) {
     if next_to(h, t) {
         // Don't move
-        return (0, 0);
+        (0, 0)
     } else if h.0 == t.0 && h.1 > t.1 {
         // Same column, head is above tail
-        return (0, 1);
+        (0, 1)
     } else if h.0 == t.0 && h.1 < t.1 {
         // Same column, head is below tail
-        return (0, -1);
+        (0, -1)
     } else if h.1 == t.1 && h.0 > t.0 {
         // Same row, head is to the right of tail
-        return (1, 0);
+        (1, 0)
     } else if h.1 == t.1 && h.0 < t.0 {
         // Same row, head is to the left of tail
-        return (-1, 0);
+        (-1, 0)
     } else if h.1 > t.1 && h.0 > t.0 {
         // Head is above and to the right of tail
-        return (1, 1);
+        (1, 1)
     } else if h.1 > t.1 && h.0 < t.0 {
         // Head is above and to the left of tail
-        return (-1, 1);
+        (-1, 1)
     } else if h.1 < t.1 && h.0 > t.0 {
         // Head is below and to the right of tail
-        return (1, -1);
+        (1, -1)
     } else if h.1 < t.1 && h.0 < t.0 {
         // Head is below and to the left of tail
-        return (-1, -1);
+        (-1, -1)
     } else {
         panic!("I'm lost!");
     }
@@ -111,7 +110,7 @@ fn simulate(instructions: Vec<Instruction>) -> (i32, i32) {
         }
     }
 
-    return (visited.len() as i32, visited_long.len() as i32);
+    (visited.len() as i32, visited_long.len() as i32)
 }
 
 fn main() {

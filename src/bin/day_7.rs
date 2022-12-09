@@ -85,7 +85,7 @@ fn parse_dirs(input: &str) -> (Tree<Item>, Vec<NodeId>) {
         }
     }
 
-    return (tree, leaves);
+    (tree, leaves)
 }
 
 fn calculate_dir_sizes(mut tree: Tree<Item>, leaves: Vec<NodeId>) -> Tree<Item> {
@@ -103,7 +103,7 @@ fn calculate_dir_sizes(mut tree: Tree<Item>, leaves: Vec<NodeId>) -> Tree<Item> 
             parent = parent_node.parent().unwrap().node_id();
         }
     }
-    return tree;
+    tree
 }
 
 fn print_tree(tree: &Tree<Item>) {
