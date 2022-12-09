@@ -12,8 +12,8 @@ fn read_stacks(input: &str) -> Vec<Vec<char>> {
 
     let mut parsing_stacks = true;
     let mut stack_lines: Vec<&str> = Vec::new();
-    for line in input.split("\n") {
-        if line == "" || re_index_line.is_match(line) {
+    for line in input.split('\n') {
+        if line.is_empty() || re_index_line.is_match(line) {
             parsing_stacks = false;
             continue;
         }
@@ -48,7 +48,7 @@ fn read_stacks(input: &str) -> Vec<Vec<char>> {
 
     println!("Output: {:?}\n\n=====\n", output);
 
-    return output;
+    output
 }
 
 fn read_moves(input: &str) -> Vec<MoveCommand> {
@@ -56,7 +56,7 @@ fn read_moves(input: &str) -> Vec<MoveCommand> {
 
     let mut stack_lines: Vec<MoveCommand> = Vec::new();
 
-    for line in input.split("\n") {
+    for line in input.split('\n') {
         let parts = re_move.captures(line);
         parts.map(|parts| {
             let num_items = parts[1].parse::<usize>().unwrap();
@@ -71,14 +71,14 @@ fn read_moves(input: &str) -> Vec<MoveCommand> {
         });
     }
 
-    return stack_lines;
+    stack_lines
 }
 
 fn main() {
     let input = read_to_string("./data/day_5").expect("Error reading file");
 
     let mut stacks = read_stacks(&input);
-    let mut moves = read_moves(&input);
+    let moves = read_moves(&input);
 
     println!("Stacks: {:?}", stacks);
     println!("\n\n");

@@ -1,19 +1,19 @@
 use std::fs::read_to_string;
 
 fn range(item: &str) -> (i32, i32) {
-    let mut parts = item.split("-");
+    let mut parts = item.split('-');
     let min = parts.next().unwrap().parse::<i32>().unwrap();
     let max = parts.next().unwrap().parse::<i32>().unwrap();
-    return (min, max);
+    (min, max)
 }
 
 // Is a contained by b?
 fn contained_by(a: (i32, i32), b: (i32, i32)) -> bool {
-    return a.0 >= b.0 && a.1 <= b.1;
+    a.0 >= b.0 && a.1 <= b.1
 }
 
 fn overlap(a: (i32, i32), b: (i32, i32)) -> bool {
-    return a.0 <= b.1 && a.1 >= b.0;
+    a.0 <= b.1 && a.1 >= b.0
 }
 
 fn main() {
@@ -21,9 +21,9 @@ fn main() {
 
     let mut number_contained = 0;
     let mut number_overlap = 0;
-    for line in input.split("\n") {
+    for line in input.split('\n') {
         println!("Line: {}", line);
-        let pair = line.split(",").collect::<Vec<&str>>();
+        let pair = line.split(',').collect::<Vec<&str>>();
         let a = range(pair[0]);
         let b = range(pair[1]);
 

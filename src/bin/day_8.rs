@@ -10,7 +10,7 @@ fn read_vec(fname: &str) -> Vec<Vec<u8>> {
         }
         vec.push(line_vec);
     }
-    return vec;
+    vec
 }
 
 fn main() {

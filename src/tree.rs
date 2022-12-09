@@ -1,5 +1,6 @@
 use std::{cell::RefCell, fmt::Display, rc::Rc};
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct TreeNode<T> {
     value: Option<T>,
@@ -9,13 +10,14 @@ struct TreeNode<T> {
 
 // TODO: need copy?
 // multiple traits: <T: Display + Eq>
+#[allow(dead_code)]
 impl<T: Display + Copy> TreeNode<T> {
     pub fn new() -> TreeNode<T> {
-        return TreeNode {
+        TreeNode {
             value: None,
             children: vec![],
             parent: None,
-        };
+        }
     }
 
     pub fn add_child(&mut self, new_node: Rc<RefCell<TreeNode<T>>>) {
@@ -24,7 +26,7 @@ impl<T: Display + Copy> TreeNode<T> {
 
     pub fn print(&self) -> String {
         if let Some(value) = &self.value {
-            return value.to_string();
+            value.to_string()
         } else {
             return String::from("[")
                 + &self
@@ -38,6 +40,7 @@ impl<T: Display + Copy> TreeNode<T> {
     }
 }
 
+#[allow(dead_code)]
 impl TreeNode<u32> {
     pub fn parse_repr(s: String) -> Rc<RefCell<TreeNode<u32>>> {
         let root = Rc::new(RefCell::new(TreeNode::new()));
@@ -66,7 +69,7 @@ impl TreeNode<u32> {
                 panic!("Unknown character: {}", c);
             }
         }
-        return root;
+        root
     }
 }
 

@@ -72,14 +72,14 @@ impl Shape {
             0 // Lose - 0 points
         };
 
-        return you.score() + score;
+        you.score() + score
     }
 
     fn play_chars(opponent: char, you: char) -> i64 {
         let their_shape = Shape::from_char(opponent).expect("Invalid opponent shape");
         let your_shape = Shape::from_char(you).expect("Invalid your shape");
 
-        return Shape::play(their_shape, your_shape);
+        Shape::play(their_shape, your_shape)
     }
 
     fn play_with_goal(opponent: char, outcome: char) -> i64 {
@@ -96,7 +96,7 @@ impl Shape {
             (Outcome::Win, Shape::Scissors) => Shape::Rock,
         };
 
-        return Shape::play(their_shape, our_shape);
+        Shape::play(their_shape, our_shape)
     }
 }
 
@@ -105,7 +105,7 @@ fn main() {
 
     let mut score = 0;
     let mut score_with_goal = 0;
-    for line in input.split("\n") {
+    for line in input.split('\n') {
         let chars = line.chars().collect::<Vec<char>>();
 
         if chars.len() < 3 {

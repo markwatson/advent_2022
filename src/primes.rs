@@ -24,7 +24,7 @@ pub fn prime_sieve(n: Num) -> Vec<Num> {
         }
     }
 
-    return actual;
+    actual
 }
 
 #[allow(dead_code)]
@@ -40,13 +40,13 @@ fn prime_factors_naive(a: Num) -> Vec<Num> {
         let prime_v = prime.unwrap();
         if running % prime_v == 0 {
             factors.push(*prime_v);
-            running = running / prime_v;
+            running /= prime_v;
         } else {
             prime = prime_iter.next();
         }
     }
 
-    return factors;
+    factors
 }
 
 #[allow(dead_code)]
@@ -73,12 +73,12 @@ fn prime_factors_sieve(n: Num) -> Vec<Num> {
             while running % i == 0 {
                 println!("{}", running);
                 factors.push(i);
-                running = running / i;
+                running /= i;
             }
         }
     }
 
-    return factors;
+    factors
 }
 
 #[allow(dead_code)]
@@ -91,7 +91,7 @@ fn primes_to(a: Num) -> Vec<Num> {
         }
     }
 
-    return primes;
+    primes
 }
 
 #[allow(dead_code)]
@@ -109,5 +109,5 @@ fn is_prime(a: Num) -> bool {
         }
     }
 
-    return true;
+    true
 }

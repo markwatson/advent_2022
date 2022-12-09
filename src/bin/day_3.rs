@@ -1,13 +1,13 @@
-use env_logger;
+
 use std::{collections::HashSet, fs::read_to_string};
 
 // RUST_LOG=debug cargo run --bin day_3
 
 fn priority(c: char) -> i64 {
-    if c >= 'A' && c <= 'Z' {
-        return (c as i64) - ('A' as i64) + 27;
-    } else if c >= 'a' && c <= 'z' {
-        return (c as i64) - ('a' as i64) + 1;
+    if ('A'..='Z').contains(&c) {
+        (c as i64) - ('A' as i64) + 27
+    } else if ('a'..='z').contains(&c) {
+        (c as i64) - ('a' as i64) + 1
     } else {
         panic!("Invalid character");
     }
@@ -25,7 +25,7 @@ fn main() {
     let mut group: Vec<&str> = Vec::new();
     let mut group_priority_sum = 0;
     let mut priority_sum = 0;
-    for line in input.split("\n") {
+    for line in input.split('\n') {
         // Step 1
         log::debug!("Line: {}", line);
 

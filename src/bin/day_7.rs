@@ -1,5 +1,5 @@
-use regex::Regex;
-use std::{borrow::Borrow, cell::RefCell, fmt, fs::read_to_string, rc::Rc};
+
+use std::{fmt, fs::read_to_string};
 
 #[derive(Debug, Clone)]
 struct Item {

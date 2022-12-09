@@ -4,7 +4,7 @@ use std::process::exit;
 
 fn main() {
     let mut elves: Vec<Elf> = parse("./data/day_1");
-    if elves.len() == 0 {
+    if elves.is_empty() {
         println!("Error reading file");
         exit(1);
     }
@@ -41,8 +41,8 @@ where
     // Consumes the iterator, returns an (Optional) String
     let mut items = Vec::new();
     let mut counter: i32 = 1;
-    for line in contents.split("\n") {
-        if line.len() > 0 {
+    for line in contents.split('\n') {
+        if !line.is_empty() {
             items.push(line.parse::<i32>().unwrap());
         } else {
             elves.push(Elf {
@@ -55,5 +55,5 @@ where
         }
     }
 
-    return elves;
+    elves
 }

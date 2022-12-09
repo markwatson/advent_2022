@@ -14,7 +14,7 @@ fn find_marker(chars: Chars, marker_len: usize) -> i32 {
 
         set_helper.clear();
         prev.iter().for_each(|x| {
-            set_helper.insert(x.clone());
+            set_helper.insert(*x);
         });
 
         if set_helper.len() == marker_len {
