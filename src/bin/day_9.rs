@@ -119,4 +119,5 @@ fn main() {
     let tail_visited = simulate(instructions);
     println!("Step1: Tail visited {} cells", tail_visited.0);
     println!("Step2: LOOONG tail visited {} cells", tail_visited.1);
+    // Done!
 }
