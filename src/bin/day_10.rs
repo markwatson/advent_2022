@@ -69,6 +69,7 @@ fn vm(instructions: Vec<Instruction>) -> i64 {
     let mut signal_step = 20;
     let mut total_signal = 0;
 
+    // Stepper for screen output
     let mut screen_step = 0;
 
     let mut vm = Vm::new(|vm| {
