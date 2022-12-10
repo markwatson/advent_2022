@@ -64,24 +64,46 @@ where
     }
 }
 
-fn vm(instructions: Vec<Instruction>) {
+fn vm(instructions: Vec<Instruction>) -> i64 {
+    let sprite_size = 3;
     let mut signal_step = 20;
     let mut total_signal = 0;
-    let mut vm = Vm::new(|vm| {
-        println!("===========");
-        println!("Instruction: {:?}", vm.instruction);
-        println!("Cycle: {}", vm.cycle);
-        println!("Reg X: {}", vm.reg_x);
 
-        if vm.cycle == (signal_step) {
+    let mut screen_step = 0;
+
+    let mut vm = Vm::new(|vm| {
+        // Debug
+        //println!("===========");
+        //println!("Instruction: {:?}", vm.instruction);
+        //println!("Cycle: {}", vm.cycle);
+        //println!("Reg X: {}", vm.reg_x);
+
+        // Step 1:
+        if vm.cycle == signal_step {
             let signal = vm.cycle * vm.reg_x;
-            println!("Signal: c:{} * x:{} = {}", vm.cycle, vm.reg_x, signal);
+            // Debug
+            //println!("Signal: c:{} * x:{} = {}", vm.cycle, vm.reg_x, signal);
+
             signal_step += 40;
             total_signal += signal;
         }
+
+        // Step 2:
+        let cycle_position = vm.cycle % 40;
+        if cycle_position >= vm.reg_x && cycle_position <= (vm.reg_x + sprite_size - 1) {
+            print!("#");
+        } else {
+            print!(".");
+        }
+
+        screen_step += 1;
+        if screen_step % 40 == 0 {
+            println!();
+        }
     });
     vm.run_all(instructions);
-    println!("Total signal: {}", total_signal);
+    print!("\n\n");
+    return total_signal;
 }
 
 fn main() {
@@ -93,7 +115,9 @@ fn main() {
             row[1].parse::<i64>().map_or_else(|_| None, |f| Some(f)),
         )
     });
-    println!("Input: {:?}", input);
+    // Debug
+    //println!("Input: {:?}", input);
 
-    vm(input);
+    let total_signal = vm(input);
+    println!("Step 1: Total signal: {}", total_signal);
 }
