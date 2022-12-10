@@ -104,7 +104,7 @@ fn vm(instructions: Vec<Instruction>) -> i64 {
     });
     vm.run_all(instructions);
     print!("\n\n");
-    return total_signal;
+    total_signal
 }
 
 fn main() {
@@ -113,7 +113,7 @@ fn main() {
     let input = read_in_map(fname, re, |row| {
         (
             row[0].to_string(),
-            row[1].parse::<i64>().map_or_else(|_| None, |f| Some(f)),
+            row[1].parse::<i64>().map_or_else(|_| None, Some),
         )
     });
     // Debug

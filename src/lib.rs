@@ -20,7 +20,7 @@ pub fn read_in(fname: &str, re: &str) -> Vec<Vec<String>> {
             output.push(output_parts);
         });
     }
-    return output;
+    output
 }
 
 pub fn read_in_map<T>(fname: &str, re: &str, transform: fn(&Vec<String>) -> T) -> Vec<T> {
