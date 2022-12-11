@@ -1,12 +1,17 @@
 use std::{cell::RefCell, collections::HashMap, fs::read_to_string};
 
-use num_bigint::BigInt;
 use regex::Regex;
+
+struct Item {
+    start: i64,
+    multers: RefCell<Vec<i64>>,
+    raised: i64,
+}
 
 #[derive(Debug)]
 struct Monkey {
     id: usize,
-    items: RefCell<Vec<BigInt>>,
+    items: RefCell<Vec<i64>>,
     operation: (String, Option<String>, Option<i64>),
     test: i64,
     true_monkey: usize,
@@ -35,8 +40,8 @@ impl Monkey {
             .join(", ");
     }
 
-    fn perform_operation(&self, item: BigInt) -> BigInt {
-        let mut new = BigInt::from(0);
+    fn perform_operation(&self, item: i64) -> i64 {
+        let mut new = 0;
         if self.operation.1.is_some() {
             if self.operation.0 == "*" {
                 new = item.pow(2);
@@ -50,7 +55,7 @@ impl Monkey {
                 new = item + self.operation.2.unwrap();
             }
         }
-        if new == BigInt::from(0) {
+        if new == 0 {
             panic!("BAD THING HAPPENED.")
         };
         return new;
@@ -68,7 +73,7 @@ impl Monkey {
                     new_item = new_item / 3;
                 }
 
-                if &new_item % monkey.test == BigInt::from(0) {
+                if &new_item % monkey.test == 0 {
                     monkeys[monkey.true_monkey]
                         .items
                         .borrow_mut()
@@ -116,7 +121,7 @@ fn parse_monkeys(fname: &str) -> Vec<Monkey> {
             monkey.items = RefCell::new(
                 items[1]
                     .split(',')
-                    .map(|item| BigInt::from(item.trim().parse::<i64>().unwrap()))
+                    .map(|item| item.trim().parse::<i64>().unwrap())
                     .collect(),
             );
         });
