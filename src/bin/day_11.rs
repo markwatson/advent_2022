@@ -1,13 +1,14 @@
 use std::{cell::RefCell, collections::HashMap, fs::read_to_string};
 
+use num_bigint::BigInt;
 use regex::Regex;
 
 #[derive(Debug)]
 struct Monkey {
     id: usize,
-    items: RefCell<Vec<u128>>,
-    operation: (String, Option<String>, Option<u128>),
-    test: u128,
+    items: RefCell<Vec<BigInt>>,
+    operation: (String, Option<String>, Option<i64>),
+    test: i64,
     true_monkey: usize,
     false_monkey: usize,
 }
@@ -34,13 +35,13 @@ impl Monkey {
             .join(", ");
     }
 
-    fn perform_operation(&self, item: u128) -> u128 {
-        let mut new = 0;
+    fn perform_operation(&self, item: BigInt) -> BigInt {
+        let mut new = BigInt::from(0);
         if self.operation.1.is_some() {
             if self.operation.0 == "*" {
-                new = item * item;
+                new = item.pow(2);
             } else if self.operation.0 == "+" {
-                new = item + item;
+                new = item * 2;
             }
         } else if self.operation.2.is_some() {
             if self.operation.0 == "*" {
@@ -49,28 +50,34 @@ impl Monkey {
                 new = item + self.operation.2.unwrap();
             }
         }
-        if new == 0 {
+        if new == BigInt::from(0) {
             panic!("BAD THING HAPPENED.")
         };
         return new;
     }
 
-    fn play_round(monkeys: &Vec<Monkey>, inspected: &mut HashMap<usize, u128>, divide_by_3: bool) {
+    fn play_round(monkeys: &Vec<Monkey>, inspected: &mut HashMap<usize, u64>, divide_by_3: bool) {
         for monkey in monkeys.iter() {
             let num_items = monkey.items.borrow().len();
             for _ in 0..num_items {
                 *inspected.entry(monkey.id).or_insert(0) += 1;
 
                 let item = monkey.items.borrow_mut().remove(0);
-                let mut new = monkey.perform_operation(item);
+                let mut new_item = monkey.perform_operation(item);
                 if divide_by_3 {
-                    new = new / 3;
+                    new_item = new_item / 3;
                 }
 
-                if new % monkey.test == 0 {
-                    monkeys[monkey.true_monkey].items.borrow_mut().push(new);
+                if &new_item % monkey.test == BigInt::from(0) {
+                    monkeys[monkey.true_monkey]
+                        .items
+                        .borrow_mut()
+                        .push(new_item);
                 } else {
-                    monkeys[monkey.false_monkey].items.borrow_mut().push(new);
+                    monkeys[monkey.false_monkey]
+                        .items
+                        .borrow_mut()
+                        .push(new_item);
                 }
             }
         }
@@ -109,7 +116,7 @@ fn parse_monkeys(fname: &str) -> Vec<Monkey> {
             monkey.items = RefCell::new(
                 items[1]
                     .split(',')
-                    .map(|item| item.trim().parse::<u128>().unwrap())
+                    .map(|item| BigInt::from(item.trim().parse::<i64>().unwrap()))
                     .collect(),
             );
         });
@@ -124,7 +131,7 @@ fn parse_monkeys(fname: &str) -> Vec<Monkey> {
 
             monkey.operation = match (op, val) {
                 (o, "old") => (o.to_string(), Some("old".to_string()), None),
-                (o, v) => (o.to_string(), None, Some(v.parse::<u128>().unwrap())),
+                (o, v) => (o.to_string(), None, Some(v.parse::<i64>().unwrap())),
             };
         });
         if operation.is_some() {
@@ -133,7 +140,7 @@ fn parse_monkeys(fname: &str) -> Vec<Monkey> {
 
         // Test
         let test = re_test.captures(line).map(|operation| {
-            monkey.test = operation[1].trim().parse::<u128>().unwrap();
+            monkey.test = operation[1].trim().parse::<i64>().unwrap();
         });
         if test.is_some() {
             continue;
@@ -159,8 +166,9 @@ fn parse_monkeys(fname: &str) -> Vec<Monkey> {
     return output;
 }
 
-fn monkey_around(monkey_def: &str, rounds: u128, divide_by_3: bool) -> u128 {
-    let mut monkeys = parse_monkeys(monkey_def);
+fn monkey_around(monkey_def: &str, rounds: i64, divide_by_3: bool) -> u64 {
+    let debug = rounds < 30;
+    let monkeys = parse_monkeys(monkey_def);
     println!("Let's stop monkeying around and calculate some shit!");
     for m in monkeys.iter() {
         println!("{:?}", m);
@@ -168,13 +176,18 @@ fn monkey_around(monkey_def: &str, rounds: u128, divide_by_3: bool) -> u128 {
 
     let mut inspected = HashMap::new();
     for round in 1..=rounds {
-        println!(
-            "After round {}, the monkeys are holding items with these worry levels:",
-            round
-        );
+        println!("Round {}!", round);
+        if debug {
+            println!(
+                "After round {}, the monkeys are holding items with these worry levels:",
+                round
+            );
+        }
         Monkey::play_round(&monkeys, &mut inspected, divide_by_3);
-        for m in monkeys.iter() {
-            println!("Monkey {}: {}", m.id, m.items_str());
+        if debug {
+            for m in monkeys.iter() {
+                println!("Monkey {}: {}", m.id, m.items_str());
+            }
         }
     }
 
@@ -184,7 +197,7 @@ fn monkey_around(monkey_def: &str, rounds: u128, divide_by_3: bool) -> u128 {
             m.id, inspected[&m.id]
         );
     }
-    let mut m = inspected.values().cloned().collect::<Vec<u128>>();
+    let mut m = inspected.values().cloned().collect::<Vec<u64>>();
     m.sort();
     let monkey_business = m[m.len() - 1] * m[m.len() - 2];
     return monkey_business;
@@ -193,4 +206,7 @@ fn monkey_around(monkey_def: &str, rounds: u128, divide_by_3: bool) -> u128 {
 fn main() {
     let monkey_business = monkey_around("./data/day_11", 20, true);
     println!("Step 1: Monkey business: {}", monkey_business);
+
+    // let monkey_business = monkey_around("./data/day_11_test", 10000, false);
+    // println!("Step 2: Monkey business: {}", monkey_business);
 }
