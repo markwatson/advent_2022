@@ -49,17 +49,17 @@ fn prime_factors_naive(a: Num) -> Vec<Num> {
     factors
 }
 
-pub fn find_prime_factors(n: Num) -> Vec<Num> {
-    if n <= 1 {
-        // Technically not correct as 1 is not prime or composite.
-        // This makes things easier to program though.
-        return vec![n];
-    } else if is_prime(n) {
-        return vec![n];
-    } else {
-        return prime_factors_sieve(n);
-    }
-}
+// pub fn find_prime_factors(n: Num) -> Vec<Num> {
+//     if n <= 1 {
+//         // Technically not correct as 1 is not prime or composite.
+//         // This makes things easier to program though.
+//         return vec![n];
+//     } else if is_prime(n) {
+//         return vec![n];
+//     } else {
+//         return prime_factors_sieve(n);
+//     }
+// }
 
 #[allow(dead_code)]
 fn prime_factors_sieve(n: Num) -> Vec<Num> {
