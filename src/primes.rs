@@ -30,7 +30,7 @@ pub fn prime_sieve(n: Num) -> Vec<Num> {
 #[allow(dead_code)]
 fn prime_factors_naive(a: Num) -> Vec<Num> {
     let mut factors: Vec<Num> = vec![];
-    let primes = primes_to(a);
+    let primes = calc_primes_to(a);
 
     let mut prime_iter = primes.iter();
     let mut running = a;
@@ -47,6 +47,18 @@ fn prime_factors_naive(a: Num) -> Vec<Num> {
     }
 
     factors
+}
+
+pub fn find_prime_factors(n: Num) -> Vec<Num> {
+    if n <= 1 {
+        // Technically not correct as 1 is not prime or composite.
+        // This makes things easier to program though.
+        return vec![n];
+    } else if is_prime(n) {
+        return vec![n];
+    } else {
+        return prime_factors_sieve(n);
+    }
 }
 
 #[allow(dead_code)]
@@ -71,7 +83,7 @@ fn prime_factors_sieve(n: Num) -> Vec<Num> {
             }
 
             while running % i == 0 {
-                println!("{}", running);
+                //println!("{}", running);
                 factors.push(i);
                 running /= i;
             }
@@ -82,7 +94,7 @@ fn prime_factors_sieve(n: Num) -> Vec<Num> {
 }
 
 #[allow(dead_code)]
-fn primes_to(a: Num) -> Vec<Num> {
+pub fn calc_primes_to(a: Num) -> Vec<Num> {
     let mut primes: Vec<Num> = vec![2, 3];
 
     for x in 4..a {
@@ -95,7 +107,7 @@ fn primes_to(a: Num) -> Vec<Num> {
 }
 
 #[allow(dead_code)]
-fn is_prime(a: Num) -> bool {
+pub fn is_prime(a: Num) -> bool {
     if a == 1 {
         return false;
     }
