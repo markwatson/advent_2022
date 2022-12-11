@@ -1,10 +1,12 @@
 use std::{cell::RefCell, collections::HashMap, fs::read_to_string, process::exit};
 
+use num_bigint::{BigInt, BigUint};
 use regex::Regex;
 
 #[derive(Debug, Clone)]
 struct Item {
     start: u64,
+    running: u64,
     factors: Vec<u64>,
 }
 
@@ -12,6 +14,7 @@ impl Item {
     fn new(start: u64) -> Self {
         Item {
             start,
+            running: start,
             factors: primes::factors(start),
         }
     }
@@ -19,8 +22,17 @@ impl Item {
     fn clone(&self) -> Self {
         Item {
             start: self.start.clone(),
+            running: self.running.clone(),
             factors: self.factors.clone(),
         }
+    }
+
+    fn calc_from_factors(&self) -> u64 {
+        let mut new_number: u64 = 1;
+        for factor in self.factors.iter() {
+            new_number = new_number.checked_mul(*factor).expect("INTEGER OVERFLOW");
+        }
+        return new_number;
     }
 }
 
@@ -101,24 +113,27 @@ impl Monkey {
             } else if self.operation.0 == "+" {
                 // TODO: This can't work?
                 // Adding numbers causes us to have to recalc factors :/
-                let mut new_number = 1;
-                for factor in item.factors.iter() {
-                    new_number *= factor;
-                }
+                let mut new_number = item.calc_from_factors();
                 new_number += self.operation.2.unwrap();
                 new_factors = primes::factors(new_number);
             }
         }
         item.factors = new_factors;
+        // item.running = self.perform_operation(item.running);
         println!("Result: {:?}", item);
-        println!();
+        // if item.running != item.calc_from_factors() {
+        //     panic!("BAD THING HAPPENED.")
+        // };
     }
 
     fn play_round(monkeys: &Vec<Monkey>, inspected: &mut HashMap<usize, u64>, divide_by_3: bool) {
+        println!("=======");
         for monkey in monkeys.iter() {
+            println!();
             if divide_by_3 {
                 let num_items = monkey.items.borrow().len();
                 for _ in 0..num_items {
+                    println!();
                     *inspected.entry(monkey.id).or_insert(0) += 1;
                     let item = monkey.items.borrow_mut().remove(0);
                     let mut new_item = monkey.perform_operation(item);
@@ -146,8 +161,8 @@ impl Monkey {
 
                     let item = monkey.items_factors.borrow_mut().remove(0);
                     // TODO: So many copies?
-                    monkey.perform_operation_primes(&mut item.clone());
-                    let item_new = item.clone();
+                    let mut item_new = item.clone();
+                    monkey.perform_operation_primes(&mut item_new);
 
                     // Test is always prime.
                     println!(
@@ -155,19 +170,22 @@ impl Monkey {
                         &monkey.test, item_new.factors
                     );
 
-                    if item_new.factors.contains(&monkey.test) {
-                        println!("Sending to monkey: {:?}", monkey.true_monkey);
-                        monkeys[monkey.true_monkey]
-                            .items_factors
-                            .borrow_mut()
-                            .push(item_new);
-                    } else {
-                        println!("Sending to monkey: {:?}", monkey.false_monkey);
-                        monkeys[monkey.false_monkey]
-                            .items_factors
-                            .borrow_mut()
-                            .push(item_new);
+                    let mut send_to_monkey = monkey.false_monkey;
+                    for f in &item_new.factors {
+                        if f == &monkey.test {
+                            send_to_monkey = monkey.true_monkey;
+                            break;
+                        }
                     }
+                    // if item_new.running % monkey.test == 0 {
+                    //     send_to_monkey = monkey.true_monkey;
+                    // }
+
+                    println!("Sending to monkey: {:?}", send_to_monkey);
+                    monkeys[send_to_monkey]
+                        .items_factors
+                        .borrow_mut()
+                        .push(item_new);
                 }
             }
         }
