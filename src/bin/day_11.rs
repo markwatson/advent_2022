@@ -1,4 +1,9 @@
-use std::{cell::RefCell, collections::HashMap, fs::read_to_string, process::exit};
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet},
+    fs::read_to_string,
+    process::exit,
+};
 
 use num_bigint::{BigInt, BigUint};
 use regex::Regex;
@@ -6,7 +11,6 @@ use regex::Regex;
 #[derive(Debug, Clone)]
 struct Item {
     start: u64,
-    running: u64,
     factors: Vec<u64>,
 }
 
@@ -14,7 +18,6 @@ impl Item {
     fn new(start: u64) -> Self {
         Item {
             start,
-            running: start,
             factors: primes::factors(start),
         }
     }
@@ -22,12 +25,12 @@ impl Item {
     fn clone(&self) -> Self {
         Item {
             start: self.start.clone(),
-            running: self.running.clone(),
             factors: self.factors.clone(),
         }
     }
 
     fn calc_from_factors(&self) -> u64 {
+        println!("CALC FROM FACTORS: {:?}", self.factors);
         let mut new_number: u64 = 1;
         for factor in self.factors.iter() {
             new_number = new_number.checked_mul(*factor).expect("INTEGER OVERFLOW");
@@ -75,7 +78,7 @@ impl Monkey {
         let mut new = 0;
         if self.operation.1.is_some() {
             if self.operation.0 == "*" {
-                new = item.pow(2);
+                new = item * item;
             } else if self.operation.0 == "+" {
                 new = item * 2;
             }
@@ -98,8 +101,8 @@ impl Monkey {
         //     item.start,
         //     prime_factors_sieve(item.start)
         // );
-        println!("Performing operation on {:?}", item);
-        println!("operation: {:?}", self.operation);
+        // println!("Performing operation on {:?}", item);
+        // println!("operation: {:?}", self.operation);
         let mut new_factors = item.factors.clone();
         if self.operation.1.is_some() {
             if self.operation.0 == "*" {
@@ -113,27 +116,47 @@ impl Monkey {
             } else if self.operation.0 == "+" {
                 // TODO: This can't work?
                 // Adding numbers causes us to have to recalc factors :/
+                println!("Trying to add: {}", self.operation.2.unwrap());
                 let mut new_number = item.calc_from_factors();
                 new_number += self.operation.2.unwrap();
                 new_factors = primes::factors(new_number);
             }
         }
+        // let mut distinct = HashSet::new();
+        // distinct.extend(new_factors);
+        // item.factors = distinct.into_iter().collect();
+        // for i in 0..new_factors.len() {
+        //     if new_factors[i] == 2 {
+        //         new_factors.remove(i);
+        //     }
+        // }
+        // let filter_out = 2u64;
+        // item.factors = new_factors
+        //     .iter()
+        //     .map(|x| *x)
+        //     .filter(|x| x != &filter_out)
+        //     .collect();
         item.factors = new_factors;
         // item.running = self.perform_operation(item.running);
-        println!("Result: {:?}", item);
+        // println!("Result: {:?}", item);
         // if item.running != item.calc_from_factors() {
         //     panic!("BAD THING HAPPENED.")
         // };
     }
 
-    fn play_round(monkeys: &Vec<Monkey>, inspected: &mut HashMap<usize, u64>, divide_by_3: bool) {
-        println!("=======");
+    fn play_round(
+        monkeys: &Vec<Monkey>,
+        inspected: &mut HashMap<usize, u64>,
+        divide_by_3: bool,
+        by_primes: bool,
+    ) {
+        // println!("=======");
         for monkey in monkeys.iter() {
-            println!();
-            if divide_by_3 {
+            // println!();
+            if !by_primes {
                 let num_items = monkey.items.borrow().len();
                 for _ in 0..num_items {
-                    println!();
+                    // println!();
                     *inspected.entry(monkey.id).or_insert(0) += 1;
                     let item = monkey.items.borrow_mut().remove(0);
                     let mut new_item = monkey.perform_operation(item);
@@ -142,6 +165,7 @@ impl Monkey {
                     }
 
                     if &new_item % monkey.test == 0 {
+                        new_item = new_item / monkey.test;
                         monkeys[monkey.true_monkey]
                             .items
                             .borrow_mut()
@@ -154,7 +178,7 @@ impl Monkey {
                     }
                 }
             } else {
-                println!("Working on monkey: {:?}", monkey.id);
+                // println!("Working on monkey: {:?}", monkey.id);
                 let num_items = monkey.items_factors.borrow().len();
                 for _ in 0..num_items {
                     *inspected.entry(monkey.id).or_insert(0) += 1;
@@ -162,26 +186,27 @@ impl Monkey {
                     let item = monkey.items_factors.borrow_mut().remove(0);
                     // TODO: So many copies?
                     let mut item_new = item.clone();
+                    println!("Test: {}", &monkey.test);
                     monkey.perform_operation_primes(&mut item_new);
 
                     // Test is always prime.
-                    println!(
-                        "Testing factors div by {}: {:?}",
-                        &monkey.test, item_new.factors
-                    );
+                    // println!(
+                    //     "Testing factors div by {}: {:?}",
+                    //     &monkey.test, item_new.factors
+                    // );
 
                     let mut send_to_monkey = monkey.false_monkey;
-                    for f in &item_new.factors {
+                    for i in 0..item_new.factors.len() {
+                        let f = &item_new.factors[i];
                         if f == &monkey.test {
+                            item_new.factors.remove(i);
+                            println!("Monkey {} got item: {:?}", monkey.id, item_new);
                             send_to_monkey = monkey.true_monkey;
                             break;
                         }
                     }
-                    // if item_new.running % monkey.test == 0 {
-                    //     send_to_monkey = monkey.true_monkey;
-                    // }
 
-                    println!("Sending to monkey: {:?}", send_to_monkey);
+                    // println!("Sending to monkey: {:?}", send_to_monkey);
                     monkeys[send_to_monkey]
                         .items_factors
                         .borrow_mut()
@@ -281,7 +306,7 @@ fn parse_monkeys(fname: &str) -> Vec<Monkey> {
     return output;
 }
 
-fn monkey_around(monkey_def: &str, rounds: u64, divide_by_3: bool) -> u64 {
+fn monkey_around(monkey_def: &str, rounds: u64, divide_by_3: bool, by_primes: bool) -> u64 {
     let debug = false; //rounds < 30;
     let monkeys = parse_monkeys(monkey_def);
     println!("Let's stop monkeying around and calculate some shit!");
@@ -298,7 +323,7 @@ fn monkey_around(monkey_def: &str, rounds: u64, divide_by_3: bool) -> u64 {
                 round
             );
         }
-        Monkey::play_round(&monkeys, &mut inspected, divide_by_3);
+        Monkey::play_round(&monkeys, &mut inspected, divide_by_3, by_primes);
         if debug {
             for m in monkeys.iter() {
                 println!("Monkey {}: {}", m.id, m.items_str());
@@ -319,9 +344,9 @@ fn monkey_around(monkey_def: &str, rounds: u64, divide_by_3: bool) -> u64 {
 }
 
 fn main() {
-    let monkey_business = monkey_around("./data/day_11", 20, true);
+    let monkey_business = monkey_around("./data/day_11", 20, true, false);
     println!("Step 1: Monkey business: {}", monkey_business);
 
-    let monkey_business = monkey_around("./data/day_11_test", 20, false);
-    println!("Step 2: Monkey business: {}", monkey_business);
+    // let monkey_business = monkey_around("./data/day_11_test", 20, false, false);
+    // println!("Step 2: Monkey business: {}", monkey_business);
 }
