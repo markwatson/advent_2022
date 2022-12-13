@@ -33,11 +33,13 @@ fn to_edges(
     Vec<(MatrixIdx, MatrixIdx)>,
     MatrixIdx,
     MatrixIdx,
+    Vec<MatrixIdx>,
 ) {
     let mut edges = vec![];
     let mut nodes = vec![];
     let mut start_idx = MatrixIdx::empty();
     let mut end_idx = MatrixIdx::empty();
+    let mut all_starts = vec![];
     for r in 0..matrix.len_rows() {
         for c in 0..matrix.len_cols() {
             let neighbors = matrix.neighbors_idx(r, c);
@@ -45,6 +47,10 @@ fn to_edges(
             for n in neighbors {
                 let mut current = matrix.data[r][c] as i32;
                 let mut neighbor = matrix.data[n.0][n.1] as i32;
+
+                if current == 'a' as i32 {
+                    all_starts.push(MatrixIdx::new(r, c));
+                }
 
                 if current == 'S' as i32 {
                     start_idx = MatrixIdx::new(r, c);
@@ -64,11 +70,13 @@ fn to_edges(
             }
         }
     }
-    return (nodes, edges, start_idx, end_idx);
+    return (nodes, edges, start_idx, end_idx, all_starts);
 }
 
-fn build_graph(matrix: &Matrix<char>) -> (Graph<MatrixIdx, ()>, NodeIndex, NodeIndex) {
-    let (nodes, edges, start_idx, end_idx) = to_edges(matrix);
+fn build_graph(
+    matrix: &Matrix<char>,
+) -> (Graph<MatrixIdx, ()>, NodeIndex, NodeIndex, Vec<NodeIndex>) {
+    let (nodes, edges, start_idx, end_idx, all_starts) = to_edges(matrix);
 
     let mut graph = Graph::new();
 
@@ -78,10 +86,21 @@ fn build_graph(matrix: &Matrix<char>) -> (Graph<MatrixIdx, ()>, NodeIndex, NodeI
         node_index.insert(node, graph_node);
     }
     for edge in edges {
+        // Flipped for part 2
         graph.update_edge(node_index[&edge.0], node_index[&edge.1], ());
     }
 
-    return (graph, node_index[&start_idx], node_index[&end_idx]);
+    let mut all_start_nodes = vec![];
+    for node in all_starts {
+        all_start_nodes.push(node_index[&node]);
+    }
+
+    return (
+        graph,
+        node_index[&start_idx],
+        node_index[&end_idx],
+        all_start_nodes,
+    );
 }
 
 fn main() {
@@ -131,20 +150,24 @@ fn main() {
 
     println!("{}", matrix);
 
-    let (graph, start, end) = build_graph(&matrix);
-    // let path = astar(&graph, start, |finish| finish == end, |_| 1, |_| 0);
-    // println!("{}", path.unwrap().0);
+    let (graph, start, end, all_starts) = build_graph(&matrix);
 
-    let costs = dijkstra(&graph, start, None, |_| 1);
-    println!("{:?}", graph);
-    // for cost in &costs {
-    //     println!("{:?}", cost);
-    // }
-    // println!("{:?}", start);
-    // println!("{:?}", end);
+    let costs = dijkstra(&graph, start, Some(end), |_| 1);
+    println!(
+        "Part 1: Found: {}",
+        &costs.get(&end).expect("No path found")
+    );
 
-    println!("Found: {}", &costs.get(&end).expect("No path found"));
-
-    // let path = astar(&graph, start, |finish| finish == end, |e| 1, |_| 0);
-    // println!("Path via astar: {:?}", path.unwrap().0);
+    let mut min = i32::MAX;
+    for start in all_starts {
+        let costs = dijkstra(&graph, start, Some(end), |_| 1);
+        if !costs.contains_key(&end) {
+            continue;
+        }
+        let the_cost = costs.get(&end).unwrap();
+        if the_cost < &min {
+            min = *the_cost;
+        }
+    }
+    println!("Part 2: Found: {}", min);
 }
