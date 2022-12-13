@@ -2,6 +2,7 @@ use std::fs::read_to_string;
 
 use regex::Regex;
 
+pub mod matrix;
 pub mod primes;
 pub mod tree;
 
