@@ -44,7 +44,7 @@ fn to_edges(
             nodes.push(MatrixIdx::new(r, c));
             for n in neighbors {
                 let mut current = matrix.data[r][c] as i32;
-                let neighbor = matrix.data[n.0][n.1] as i32;
+                let mut neighbor = matrix.data[n.0][n.1] as i32;
 
                 if current == 'S' as i32 {
                     start_idx = MatrixIdx::new(r, c);
@@ -52,6 +52,10 @@ fn to_edges(
                 } else if current == 'E' as i32 {
                     end_idx = MatrixIdx::new(r, c);
                     current = 'z' as i32;
+                } else if neighbor == 'E' as i32 {
+                    neighbor = 'z' as i32;
+                } else if neighbor == 'S' as i32 {
+                    neighbor = 'a' as i32;
                 }
 
                 if neighbor <= current + 1 {
@@ -106,7 +110,7 @@ fn main() {
     // }
     //cargo run --bin day_12 | dot -Tjpg > /tmp/output.jpg && open /tmp/output.jpg
 
-    let matrix = Matrix::from_file("./data/day_12_test");
+    let matrix = Matrix::from_file("./data/day_12");
 
     for r in 0..matrix.len_rows() {
         for c in 0..matrix.len_cols() {
