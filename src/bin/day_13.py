@@ -1,6 +1,14 @@
 import json
+import functools
 
-def parse_packets():
+def parse_packets_list():
+    packets = []
+    for line in open("./data/day_13"):
+        if line.strip() != "": 
+            packets.append(json.loads(line.strip()))
+    return packets
+
+def parse_packets_pairs():
     packets = []
     packet =[]
     for line in open("./data/day_13"):
@@ -43,7 +51,8 @@ def compare(left, right):
         return None
 
 
-packets = parse_packets()
+# Part 1
+packets = parse_packets_pairs()
 num = 1
 passed = 0
 for packet in packets:
@@ -58,4 +67,31 @@ for packet in packets:
     
     num += 1
     
-print("Passed: %d" % passed)
+print("Part 1: %d" % passed)
+
+# Part 2
+packets = parse_packets_list()
+signal_1 = [[2]]
+signal_2 = [[6]]
+packets.append(signal_1)
+packets.append(signal_2)
+
+def sort_key(left, right):
+    item = compare(left, right)
+    if item == True:
+        return -1
+    elif item == False:
+        return 1
+    elif item == None:
+        return 0
+
+sorted_packets = sorted(packets, key=functools.cmp_to_key(sort_key))
+index = 1
+result = 1
+for item in sorted_packets:
+    print(item)
+    if item == signal_1 or item == signal_2:
+        result *= index
+    index += 1
+    
+print("Part 2: %d" % result)
